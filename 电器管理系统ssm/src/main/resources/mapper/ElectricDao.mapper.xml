@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.elec.demo.dao.ElectricDao">
+    <resultMap id="ElectricResultMap" type="electric" >
+        <id property="eid" column="eid"/>
+        <result property="ename" column="ename" />
+    </resultMap>
+    <resultMap id="ElectricWithUserAndkind" type="electric" extends="ElectricResultMap">
+        <association property="userModel"  resultMap="com.elec.demo.dao.UserDao.UserResultMap"></association>
+        <collection  property="kind" ofType="kind" resultMap="com.elec.demo.dao.KindDao.KindResultMap"></collection >
+    </resultMap>
+
+    <!-- DAO层增加方法 -->
+    <insert id="insert"  keyProperty="eid"   keyColumn="eid"   useGeneratedKeys="true">
+		insert into electric (ename,userid) values (#{ename},#{userModel.userid})
+	</insert>
+    <!-- DAO层增加课程方法 -->
+    <insert id="insertKind">
+        insert into electrickind (eid,kid) values
+        <foreach collection="kinds" item="kind" separator=",">
+            (#{eid},#{kind})
+        </foreach>
+    </insert>
+    <!-- DAO层修改方法 -->
+    <update id="update" parameterType="electric">
+		update electric set ename=#{ename} where eid=#{eid}
+	</update>
+    <!-- DAO层增加课程方法 -->
+    <update id="deleteKind">
+        delete from electrickind where eid=#{eid}
+    </update>
+
+    <!-- Dao删除方法 -->
+    <delete id="delete" parameterType="electric">
+		delete from electric where eid=#{eid}
+	</delete>
+    <!-- 取得单一对象-->
+    <select id="selectById" resultMap="ElectricWithUserAndkind">
+		select * from electric e
+		left join electrickind ek on e.eid=ek.eid
+		left join kind k on k.kid=ek.kid
+		left join user u on u.userid=e.userid
+		 where e.eid=#{eid}
+	</select>
+    <!-- 取得全部对象分页-->
+    <select id="selectAll" resultMap="ElectricWithUserAndkind">
+		select * from electric e
+		left join electrickind ek on e.eid=ek.eid
+		left join kind k on k.kid=ek.kid
+		left join user u on u.userid=e.userid
+		 order by e.eid desc
+		 limit #{page},#{rows}
+
+	</select>
+    <!-- 取得学生个数-->
+    <select id="selectAllCount" resultType="_int">
+		select count(eid) from electric
+	</select>
+</mapper>

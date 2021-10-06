@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.elec.demo.dao.KindDao">
+    <resultMap id="KindResultMap" type="kind" >
+        <id property="kid" column="kid"/>
+        <result property="kname" column="kname" />
+    </resultMap>
+    <resultMap id="KindWithElectric" type="kind" extends="KindResultMap">
+        <collection  property="electric" ofType="electric" resultMap="com.elec.demo.dao.ElectricDao.ElectricResultMap"></collection >
+    </resultMap>
+    <!-- DAO层增加方法 -->
+    <insert id="insert"  keyProperty="kid"   keyColumn="kid"   useGeneratedKeys="true">
+		insert into kind (kname) values (#{kname})
+	</insert>
+    <!-- DAO层修改方法 -->
+    <update id="update" parameterType="kind">
+		update kind set kname=#{kname} where kid=#{kid}
+	</update>
+    <!-- Dao删除方法 -->
+    <delete id="delete" parameterType="kind">
+		delete from kind where kid=#{kid}
+	</delete>
+    <!-- 取得单一对象-->
+    <select id="selectById" resultMap="KindResultMap">
+		select * from kind where kid=#{kid}
+	</select>
+    <!-- 取得全部对象分页-->
+    <select id="selectAll" resultMap="KindResultMap">
+		select * from kind limit #{page},#{rows}
+	</select>
+
+    <select id="selectAllCount" resultType="_int">
+		select count(kid) from kind
+	</select>
+</mapper>
